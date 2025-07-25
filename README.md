@@ -1,7 +1,7 @@
 https://github.com/user-attachments/assets/238d45f9-9335-42be-9b03-27ed6880ce29
 
 <p align="center">
-   <a href='https://variantconst.github.io/panowan'><img src='https://img.shields.io/badge/Project-Page-Green'></a> &nbsp;
+   <a href='https://panowan.variantconst.com'><img src='https://img.shields.io/badge/Project-Page-Green'></a> &nbsp;
    <a href='https://arxiv.org/abs/2505.22016'><img src='https://img.shields.io/badge/arXiv-2505.22016-b31b1b.svg'></a> &nbsp;
 </p>
 
@@ -31,7 +31,6 @@ Generate panoramic videos from text prompts:
     <td align="center" valign="top">
       <video src="https://github.com/user-attachments/assets/92b0c1d9-5005-4cf4-adf2-5042e7bf0abf" width="200"></video>
     </td>
-    
     <td align="center" valign="top">
       <video src="https://github.com/user-attachments/assets/7c040660-4a9e-408f-9490-79fb5f349297" width="200"></video>
     </td>
