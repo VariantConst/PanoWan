@@ -3,6 +3,7 @@ https://github.com/user-attachments/assets/238d45f9-9335-42be-9b03-27ed6880ce29
 <p align="center">
    <a href='https://panowan.variantconst.com'><img src='https://img.shields.io/badge/Project-Page-Green'></a> &nbsp;
    <a href='https://arxiv.org/abs/2505.22016'><img src='https://img.shields.io/badge/arXiv-2505.22016-b31b1b.svg'></a> &nbsp;
+   <a href='https://huggingface.co/datasets/yousiki/PanoWan'><img src='https://img.shields.io/badge/Dataset-PanoWan-yellow'></a>
 </p>
 
 # PanoWan
@@ -95,6 +96,10 @@ Edit panoramic videos with text-guided modifications:
 Transform conventional videos to panoramic format:
 
 https://github.com/user-attachments/assets/92dca130-d5c0-423e-a285-9f6402b8db9d
+
+## Dataset
+
+The metadata for our dataset is released at [HuggingFace](https://huggingface.co/datasets/yousiki/PanoWan).
 
 ## Citation
 
