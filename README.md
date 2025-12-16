@@ -155,10 +155,10 @@ https://github.com/user-attachments/assets/92dca130-d5c0-423e-a285-9f6402b8db9d
 ## Citation
 
 ```bibtex
-@article{xia2025panowan,
-  title={PanoWan: Lifting Diffusion Video Generation Models to 360° with Latitude/Longitude-aware Mechanisms},
-  author={Xia, Yifei and Weng, Shuchen and Yang, Siqi and Liu, Jingqi and Zhu, Chengxuan and Teng, Minggui and Jia, Zijian and Jiang, Han and Shi, Boxin},
-  journal={arXiv preprint arXiv:2505.22016},
-  year={2025}
+@inproceedings{xia2025panowan,
+  title     = {PanoWan: Lifting Diffusion Video Generation Models to 360° with Latitude/Longitude-aware Mechanisms},
+  author    = {Xia, Yifei and Weng, Shuchen and Yang, Siqi and Liu, Jingqi and Zhu, Chengxuan and Teng, Minggui and Jia, Zijian and Jiang, Han and Shi, Boxin},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2025}
 }
 ```
