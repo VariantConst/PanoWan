@@ -1,10 +1,12 @@
-import lightning as pl
-from peft import LoraConfig, inject_adapter_in_model
-import torch, os
-from ..data.simple_text_image import TextImageDataset
-from modelscope.hub.api import HubApi
-from ..models.utils import load_state_dict
+import os
 
+import lightning as pl
+import torch
+from modelscope.hub.api import HubApi
+from peft import LoraConfig, inject_adapter_in_model
+
+from ..data.text_image_dataset import TextImageDataset
+from ..models.utils import load_state_dict
 
 
 class LightningModelForT2ILoRA(pl.LightningModule):
@@ -21,11 +23,9 @@ class LightningModelForT2ILoRA(pl.LightningModule):
         self.state_dict_converter = state_dict_converter
         self.lora_alpha = None
 
-
     def load_models(self):
         # This function is implemented in other modules
         self.pipe = None
-
 
     def freeze_parameters(self):
         # Freeze parameters
@@ -33,13 +33,21 @@ class LightningModelForT2ILoRA(pl.LightningModule):
         self.pipe.eval()
         self.pipe.denoising_model().train()
 
-    
-    def add_lora_to_model(self, model, lora_rank=4, lora_alpha=4, lora_target_modules="to_q,to_k,to_v,to_out", init_lora_weights="gaussian", pretrained_lora_path=None, state_dict_converter=None):
+    def add_lora_to_model(
+        self,
+        model,
+        lora_rank=4,
+        lora_alpha=4,
+        lora_target_modules="to_q,to_k,to_v,to_out",
+        init_lora_weights="gaussian",
+        pretrained_lora_path=None,
+        state_dict_converter=None,
+    ):
         # Add LoRA to UNet
         self.lora_alpha = lora_alpha
         if init_lora_weights == "kaiming":
             init_lora_weights = True
-            
+
         lora_config = LoraConfig(
             r=lora_rank,
             lora_alpha=lora_alpha,
@@ -57,12 +65,15 @@ class LightningModelForT2ILoRA(pl.LightningModule):
             state_dict = load_state_dict(pretrained_lora_path)
             if state_dict_converter is not None:
                 state_dict = state_dict_converter(state_dict)
-            missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
+            missing_keys, unexpected_keys = model.load_state_dict(
+                state_dict, strict=False
+            )
             all_keys = [i for i, _ in model.named_parameters()]
             num_updated_keys = len(all_keys) - len(missing_keys)
             num_unexpected_keys = len(unexpected_keys)
-            print(f"{num_updated_keys} parameters are loaded from {pretrained_lora_path}. {num_unexpected_keys} parameters are unexpected.")
-
+            print(
+                f"{num_updated_keys} parameters are loaded from {pretrained_lora_path}. {num_unexpected_keys} parameters are unexpected."
+            )
 
     def training_step(self, batch, batch_idx):
         # Data
@@ -72,9 +83,13 @@ class LightningModelForT2ILoRA(pl.LightningModule):
         self.pipe.device = self.device
         prompt_emb = self.pipe.encode_prompt(text, positive=True)
         if "latents" in batch:
-            latents = batch["latents"].to(dtype=self.pipe.torch_dtype, device=self.device)
+            latents = batch["latents"].to(
+                dtype=self.pipe.torch_dtype, device=self.device
+            )
         else:
-            latents = self.pipe.vae_encoder(image.to(dtype=self.pipe.torch_dtype, device=self.device))
+            latents = self.pipe.vae_encoder(
+                image.to(dtype=self.pipe.torch_dtype, device=self.device)
+            )
         noise = torch.randn_like(latents)
         timestep_id = torch.randint(0, self.pipe.scheduler.num_train_timesteps, (1,))
         timestep = self.pipe.scheduler.timesteps[timestep_id].to(self.device)
@@ -84,8 +99,11 @@ class LightningModelForT2ILoRA(pl.LightningModule):
 
         # Compute loss
         noise_pred = self.pipe.denoising_model()(
-            noisy_latents, timestep=timestep, **prompt_emb, **extra_input,
-            use_gradient_checkpointing=self.use_gradient_checkpointing
+            noisy_latents,
+            timestep=timestep,
+            **prompt_emb,
+            **extra_input,
+            use_gradient_checkpointing=self.use_gradient_checkpointing,
         )
         loss = torch.nn.functional.mse_loss(noise_pred.float(), training_target.float())
         loss = loss * self.pipe.scheduler.training_weight(timestep)
@@ -94,26 +112,34 @@ class LightningModelForT2ILoRA(pl.LightningModule):
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
-
     def configure_optimizers(self):
-        trainable_modules = filter(lambda p: p.requires_grad, self.pipe.denoising_model().parameters())
+        trainable_modules = filter(
+            lambda p: p.requires_grad, self.pipe.denoising_model().parameters()
+        )
         optimizer = torch.optim.AdamW(trainable_modules, lr=self.learning_rate)
         return optimizer
-    
 
     def on_save_checkpoint(self, checkpoint):
         checkpoint.clear()
-        trainable_param_names = list(filter(lambda named_param: named_param[1].requires_grad, self.pipe.denoising_model().named_parameters()))
-        trainable_param_names = set([named_param[0] for named_param in trainable_param_names])
+        trainable_param_names = list(
+            filter(
+                lambda named_param: named_param[1].requires_grad,
+                self.pipe.denoising_model().named_parameters(),
+            )
+        )
+        trainable_param_names = set(
+            [named_param[0] for named_param in trainable_param_names]
+        )
         state_dict = self.pipe.denoising_model().state_dict()
         lora_state_dict = {}
         for name, param in state_dict.items():
             if name in trainable_param_names:
                 lora_state_dict[name] = param
         if self.state_dict_converter is not None:
-            lora_state_dict = self.state_dict_converter(lora_state_dict, alpha=self.lora_alpha)
+            lora_state_dict = self.state_dict_converter(
+                lora_state_dict, alpha=self.lora_alpha
+            )
         checkpoint.update(lora_state_dict)
-
 
 
 def add_general_parsers(parser):
@@ -272,21 +298,22 @@ def launch_training_task(model, args):
         height=args.height,
         width=args.width,
         center_crop=args.center_crop,
-        random_flip=args.random_flip
+        random_flip=args.random_flip,
     )
     train_loader = torch.utils.data.DataLoader(
         dataset,
         shuffle=True,
         batch_size=args.batch_size,
-        num_workers=args.dataloader_num_workers
+        num_workers=args.dataloader_num_workers,
     )
     # train
     if args.use_swanlab:
         from swanlab.integration.pytorch_lightning import SwanLabLogger
+
         swanlab_config = {"UPPERFRAMEWORK": "DiffSynth-Studio"}
         swanlab_config.update(vars(args))
         swanlab_logger = SwanLabLogger(
-            project="diffsynth_studio", 
+            project="diffsynth_studio",
             name="diffsynth_studio",
             config=swanlab_config,
             mode=args.swanlab_mode,
@@ -309,9 +336,16 @@ def launch_training_task(model, args):
     trainer.fit(model=model, train_dataloaders=train_loader)
 
     # Upload models
-    if args.modelscope_model_id is not None and args.modelscope_access_token is not None:
-        print(f"Uploading models to modelscope. model_id: {args.modelscope_model_id} local_path: {trainer.log_dir}")
-        with open(os.path.join(trainer.log_dir, "configuration.json"), "w", encoding="utf-8") as f:
+    if (
+        args.modelscope_model_id is not None
+        and args.modelscope_access_token is not None
+    ):
+        print(
+            f"Uploading models to modelscope. model_id: {args.modelscope_model_id} local_path: {trainer.log_dir}"
+        )
+        with open(
+            os.path.join(trainer.log_dir, "configuration.json"), "w", encoding="utf-8"
+        ) as f:
             f.write('{"framework":"Pytorch","task":"text-to-image-synthesis"}\n')
         api = HubApi()
         api.login(args.modelscope_access_token)

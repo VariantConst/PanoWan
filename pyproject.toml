@@ -1,0 +1,41 @@
+[project]
+name = "diffsynth"
+version = "0.1.0"
+description = "PanoWan: Lifting Diffusion Video Generation Models to 360° with Latitude/Longitude-aware Mechanisms"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "accelerate>=1.12.0",
+    "click>=8.3.1",
+    "einops>=0.8.1",
+    "flash-attn",
+    "ftfy>=6.3.1",
+    "huggingface-hub>=0.36.0",
+    "imageio[ffmpeg]>=2.37.2",
+    "lightning>=2.6.0",
+    "modelscope>=1.33.0",
+    "pandas>=2.3.3",
+    "peft>=0.18.0",
+    "pillow>=12.0.0",
+    "regex>=2025.11.3",
+    "safetensors>=0.7.0",
+    "torch~=2.9.1",
+    "torchvision>=0.24.1",
+    "transformers>=4.57.3",
+    "typing-extensions>=4.15.0",
+    "xformers>=0.0.33.post2",
+]
+
+[project.scripts]
+panowan-test = "diffsynth.scripts.test:main"
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["ruff>=0.14.9"]
+
+[tool.uv.sources]
+# Note that you need to install the correct flash-attn wheel for your PyTorch and CUDA version.
+flash-attn = { url = "https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.4.17/flash_attn-2.8.3%2Bcu128torch2.9-cp313-cp313-linux_x86_64.whl" }

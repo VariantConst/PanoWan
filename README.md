@@ -3,7 +3,8 @@ https://github.com/user-attachments/assets/238d45f9-9335-42be-9b03-27ed6880ce29
 <p align="center">
    <a href='https://panowan.variantconst.com'><img src='https://img.shields.io/badge/Project-Page-Green'></a> &nbsp;
    <a href='https://arxiv.org/abs/2505.22016'><img src='https://img.shields.io/badge/arXiv-2505.22016-b31b1b.svg'></a> &nbsp;
-   <a href='https://huggingface.co/datasets/yousiki/PanoWan'><img src='https://img.shields.io/badge/Dataset-PanoWan-yellow'></a>
+   <a href='https://huggingface.co/yousiki/PanoWan'><img src='https://img.shields.io/badge/🤗 Model-PanoWan-yellow'></a> &nbsp;
+   <a href='https://huggingface.co/datasets/yousiki/PanoWan'><img src='https://img.shields.io/badge/🤗 Dataset-PanoWan-yellow'></a>
 </p>
 
 # PanoWan
@@ -97,9 +98,59 @@ Transform conventional videos to panoramic format:
 
 https://github.com/user-attachments/assets/92dca130-d5c0-423e-a285-9f6402b8db9d
 
+## Quick Start
+
+### Environment
+
+We use [uv](https://docs.astral.sh/uv/) to manage Python environment.
+
+```bash
+# First, install uv
+./scripts/install-uv.sh
+# Then, create virtual environment for PanoWan
+uv sync
+```
+
+Note that you may need to change the wheel url for flash-attn to match your platform.
+
+### Models
+
+The lora checkpoint is released at [HuggingFace](https://huggingface.co/YOUSIKI/PanoWan). You can use the following command to download Wan2.1 and PanoWan models.
+
+```bash
+# Download Wan2.1-T2V-1.3B
+./scripts/download-wan.sh ./models/Wan-AI/Wan2.1-T2V-1.3B
+# Download PanoWan
+./scripts/download-panowan.sh ./models/PanoWan
+```
+
+### Inference
+
+Use the following command for inference:
+
+```bash
+uv run panowan-test \
+  --wan-model-path ./models/Wan-AI/Wan2.1-T2V-1.3B \
+  --lora-checkpoint-path ./models/PanoWan/latest-lora.ckpt \
+  --output-path ./outputs/video.mp4
+```
+
+Detailed usage can be found via:
+
+```bash
+uv run panowan-test --help
+```
+
 ## Dataset
 
-The metadata for our dataset is released at [HuggingFace](https://huggingface.co/datasets/yousiki/PanoWan).
+The metadata for our dataset is released at [HuggingFace](https://huggingface.co/datasets/yousiki/PanoWan). You can download the corresponding videos from YouTube and other public datasets.
+
+## Todo List
+
+- [ ] Support training.
+- [x] Support inference.
+- [x] Release pretrained model.
+- [x] Release dataset.
 
 ## Citation
 
