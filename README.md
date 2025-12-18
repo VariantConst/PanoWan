@@ -58,6 +58,11 @@ uv run panowan-test --help
 
 We make our PanoVid dataset publicly available on [HuggingFace](https://huggingface.co/datasets/yousiki/PanoWan), providing comprehensive metadata and captions to facilitate future research.
 
+The heading lines of `metadata-train-val.csv` are corresponding to the YouTube subset, whose video files can be directly downloaded from YouTube.
+The file names contains the YouTube video ID and start/end timestamps for video clipping.
+As for other lines, please download video files from 3601M, 360+x, Imagine360, WEB360, Panonut360, Miraikan 360-degree Video Dataset, etc.
+We will release more detailed instruction for these subsets later.
+
 ## Text-to-360° Video Generation
 
 Generate panoramic videos from text prompts:
